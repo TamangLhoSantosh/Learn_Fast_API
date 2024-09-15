@@ -71,7 +71,7 @@ def all(id, response: Response, db: Session = Depends(get_db)):
     return blogs
 
 
-@app.post("/user")
+@app.post("/user", response_model=schemas.ShowUser)
 def create_user(request: schemas.User, db: Session = Depends(get_db)):
     new_user = models.User(
         email=request.email,
@@ -82,3 +82,13 @@ def create_user(request: schemas.User, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(new_user)
     return new_user
+
+
+@app.get("/user/{id}", response_model=schemas.ShowUser)
+def show_user(id: int, db: Session = Depends(get_db)):
+    user = db.query(models.User).filter(models.User.id == id).first()
+    if not user:
+        raise HTTPException(
+            status_code=404, detail=f"User with id {id} is not available"
+        )
+    return user
