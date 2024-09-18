@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from .. import schemas, database, models
+from .. import schemas, database, models, token
 from sqlalchemy.orm import Session
 from ..hashing import Hash
 
@@ -20,4 +20,5 @@ def login(request: schemas.Login, db: Session = Depends(database.get_db)):
         )
 
     # generate a JWT token and return
-    return user
+    access_token = token.create_access_token(data={"sub": user.email})
+    return {"access_token": access_token, "token_type": "bearer"}
